@@ -34,17 +34,10 @@ public class Employee {
     }
 
     public byte[] getImgTemplate1() {
-
-        //byte[] dataBytes = Base64.getEncoder().encode(this.template1.getBytes());
-        //dataBytes = Base64.getDecoder().decode(Base64.getEncoder().encode(dataBytes));
-        //Base64.getDecoder().decode(this.template1);
         return Base64.getDecoder().decode(this.template1);
     }
 
     public byte[] getImgTemplate2() {
-        //byte[] dataBytes = Base64.getEncoder().encode(this.template1.getBytes());
-        //dataBytes = Base64.getDecoder().decode(Base64.getEncoder().encode(dataBytes));
-
         return Base64.getDecoder().decode(this.template2);
     }
 
@@ -54,5 +47,22 @@ public class Employee {
 
     public void setTemplate2(String template2) {
         this.template2 = template2;
+    }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public byte getFinger() {
+        return finger;
+    }
+
+    public String getTemplate1() {
+        return template1;
+    }
+
+    public String getTemplate2() {
+        return template2;
     }
 }
