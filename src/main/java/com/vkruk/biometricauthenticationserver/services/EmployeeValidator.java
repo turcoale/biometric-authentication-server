@@ -22,11 +22,11 @@ public class EmployeeValidator implements Validator {
         final Employee employee = (Employee) o;
 
         if (StringUtils.isEmpty(employee.getTemplate1())) {
-            errors.rejectValue("template1", "template1 is empty");
+            errors.rejectValue("template1", "template1.empty");
         }
 
         if (StringUtils.isEmpty(employee.getTemplate2())) {
-            errors.rejectValue("template2", "template2 is empty");
+            errors.rejectValue("template2", "template2.empty");
         }
     }
 }
