@@ -18,6 +18,4 @@ public interface EmployeeRepository extends CrudRepository<Employee, Long>{
 
     long deleteAllByEmployeeId(@Param("id") int id);
 
-    List<Employee> findAllByEmployeeIdIsBefore(int id);
-
 }

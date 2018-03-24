@@ -1,7 +1,7 @@
 package com.vkruk.biometricauthenticationserver.services;
 
 import com.vkruk.biometricauthenticationserver.models.Employee;
-import org.springframework.lang.Nullable;
+//import org.springframework.lang.Nullable; @Nullable
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -17,7 +17,7 @@ public class EmployeeValidator implements Validator {
     }
 
     @Override
-    public void validate(@Nullable Object o, Errors errors) {
+    public void validate(Object o, Errors errors) {
 
         final Employee employee = (Employee) o;
 

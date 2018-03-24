@@ -90,8 +90,8 @@ public class MatchingServiceBiominiSDK implements MatchingService {
     }
 
     public void setExtractedTemplates(Employee employee){
-        String extractedTemplate1 = extractBase64Template(employee.getImgTemplate1());
-        String extractedTemplate2 = extractBase64Template(employee.getImgTemplate1());
+        String extractedTemplate1 = extractBase64Template(employee.imgTemplate1());
+        String extractedTemplate2 = extractBase64Template(employee.imgTemplate1());
         employee.setTemplate1(extractedTemplate1);
         employee.setTemplate2(extractedTemplate2);
     }
@@ -109,13 +109,13 @@ public class MatchingServiceBiominiSDK implements MatchingService {
         int index = count - 1;
         for (Employee employee : employees) {
 
-            byte[] template1 = employee.getImgTemplate1();
+            byte[] template1 = employee.imgTemplate1();
             templatesArray[index] = template1;
             templatesSize[index] = template1.length;
             employeeIdsArray[index] = employee.getEmployeeId();
             index--;
 
-            byte[] template2 = employee.getImgTemplate2();
+            byte[] template2 = employee.imgTemplate2();
             templatesArray[index] = template2;
             templatesSize[index] = template2.length;
             employeeIdsArray[index] = employee.getEmployeeId();

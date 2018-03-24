@@ -29,20 +29,40 @@ public class Employee {
         this.template2 = template2;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public int getEmployeeId() {
         return employeeId;
     }
 
-    public byte[] getImgTemplate1() {
-        return Base64.getDecoder().decode(this.template1);
+    public void setEmployeeId(int employeeId) {
+        this.employeeId = employeeId;
     }
 
-    public byte[] getImgTemplate2() {
-        return Base64.getDecoder().decode(this.template2);
+    public byte getFinger() {
+        return finger;
+    }
+
+    public void setFinger(byte finger) {
+        this.finger = finger;
+    }
+
+    public String getTemplate1() {
+        return template1;
     }
 
     public void setTemplate1(String template1) {
         this.template1 = template1;
+    }
+
+    public String getTemplate2() {
+        return template2;
     }
 
     public void setTemplate2(String template2) {
@@ -50,19 +70,11 @@ public class Employee {
     }
 
 
-    public Long getId() {
-        return id;
+    public byte[] imgTemplate1() {
+        return Base64.getDecoder().decode(this.template1);
     }
 
-    public byte getFinger() {
-        return finger;
-    }
-
-    public String getTemplate1() {
-        return template1;
-    }
-
-    public String getTemplate2() {
-        return template2;
+    public byte[] imgTemplate2() {
+        return Base64.getDecoder().decode(this.template2);
     }
 }
