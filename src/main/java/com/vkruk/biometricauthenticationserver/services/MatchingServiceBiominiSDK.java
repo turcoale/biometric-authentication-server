@@ -4,6 +4,8 @@ import com.suprema.ImageSDK;
 import com.vkruk.biometricauthenticationserver.models.Employee;
 import com.vkruk.biometricauthenticationserver.repository.EmployeeRepository;
 import jdk.nashorn.internal.ir.IfNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -30,6 +34,8 @@ public class MatchingServiceBiominiSDK implements MatchingService {
 
     private final EmployeeRepository repository;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatchingServiceBiominiSDK.class);
+
     @Autowired
     public MatchingServiceBiominiSDK(EmployeeRepository repository) {
 
@@ -42,9 +48,15 @@ public class MatchingServiceBiominiSDK implements MatchingService {
     }
 
     @Override
-    public int identify(String template) {
+    public int identify(String template) throws Exception {
 
-        byte[] bTemplate = extractByteTemplate(Base64.getDecoder().decode(template));
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
+        Date date = new Date();
+        String time = dateFormat.format(date);
+
+        LOGGER.info(time+"- Start...");
+
+        byte[] bTemplate = Base64.getDecoder().decode(template);
 
         Map<String, Object> templatesData = getTemplates();
 
@@ -55,14 +67,23 @@ public class MatchingServiceBiominiSDK implements MatchingService {
         int[] result = new int[1];
         int nRes = sdk.UFM_IdentifyMT(hMatcher[0], bTemplate, bTemplate.length, templatesArray, templatesSize, templatesArray.length, 60000, result);
 
-        if (nRes == 0 && result[0] != -1) {
-            int index = result[0];
-            if (index != -1) {
-                return employeeIdsArray[index];
+        LOGGER.info(time+" - Stop...");
+
+        int employeeId = 0;
+        if (nRes == 0) {
+            if (result[0] != -1) {
+                int index = result[0];
+                employeeId = employeeIdsArray[index];
+            }else{
+                throw new Exception("Employee not found!");
             }
+        }else {
+            byte[] msg = new byte[30];
+            sdk.UFE_GetErrorString(nRes,msg);
+            throw new Exception(new String(msg));
         }
 
-        return nRes;
+        return employeeId;
     }
 
     public byte[] extractByteTemplate(byte[] image) {
@@ -90,10 +111,10 @@ public class MatchingServiceBiominiSDK implements MatchingService {
     }
 
     public void setExtractedTemplates(Employee employee){
+        String extractedTemplate0 = extractBase64Template(employee.imgTemplate0());
         String extractedTemplate1 = extractBase64Template(employee.imgTemplate1());
-        String extractedTemplate2 = extractBase64Template(employee.imgTemplate1());
+        employee.setTemplate0(extractedTemplate0);
         employee.setTemplate1(extractedTemplate1);
-        employee.setTemplate2(extractedTemplate2);
     }
 
     public Map<String, Object> getTemplates() {
@@ -109,15 +130,15 @@ public class MatchingServiceBiominiSDK implements MatchingService {
         int index = count - 1;
         for (Employee employee : employees) {
 
-            byte[] template1 = employee.imgTemplate1();
-            templatesArray[index] = template1;
-            templatesSize[index] = template1.length;
+            byte[] template0 = employee.imgTemplate0();
+            templatesArray[index] = template0;
+            templatesSize[index] = template0.length;
             employeeIdsArray[index] = employee.getEmployeeId();
             index--;
 
-            byte[] template2 = employee.imgTemplate2();
-            templatesArray[index] = template2;
-            templatesSize[index] = template2.length;
+            byte[] template1 = employee.imgTemplate1();
+            templatesArray[index] = template1;
+            templatesSize[index] = template1.length;
             employeeIdsArray[index] = employee.getEmployeeId();
             index--;
         }
