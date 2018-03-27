@@ -2,6 +2,8 @@ package com.vkruk.biometricauthenticationserver.models;
 
 
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.NotBlank;
+
 
 public class Template {
 
@@ -10,8 +12,7 @@ public class Template {
     @ApiModelProperty(notes = "First biometric template of finger")
     private String template0;
     @ApiModelProperty(notes = "Second biometric template of finger")
-    private String template1;
-
+    private @NotBlank String template1;
 
     public byte getFinger() {
         return finger;
@@ -36,4 +37,5 @@ public class Template {
     public void setTemplate1(String template1) {
         this.template1 = template1;
     }
+
 }

@@ -5,7 +5,7 @@
 
 	<groupId>com.vkruk.BiometricAuthenticationServer</groupId>
 	<artifactId>biometric-authentication-server</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-RELEASE</version>
 	<packaging>jar</packaging>
 
 	<name>biometric-authentication-server</name>
@@ -16,7 +16,7 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<!--<version>2.0.0.RELEASE</version>-->
 		<version>1.5.9.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 
 	<properties>
@@ -94,9 +94,21 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.vkruk.biometricauthenticationserver.BiometricAuthenticationServerApplication</mainClass>
+                    <layout>ZIP</layout>
+                </configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
+
 
 
 </project>

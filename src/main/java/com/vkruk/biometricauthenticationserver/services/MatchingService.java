@@ -9,5 +9,5 @@ import com.vkruk.biometricauthenticationserver.models.Employee;
 public interface MatchingService {
     int identify(String template) throws Exception;
     String extractBase64Template(byte[] image);
-    void setExtractedTemplates(Employee employee);
+    void prepareTemplates();
 }

@@ -2,6 +2,7 @@ package com.vkruk.biometricauthenticationserver.services;
 
 import com.suprema.ImageSDK;
 import com.vkruk.biometricauthenticationserver.models.Employee;
+import com.vkruk.biometricauthenticationserver.models.Template;
 import com.vkruk.biometricauthenticationserver.repository.EmployeeRepository;
 import jdk.nashorn.internal.ir.IfNode;
 import org.slf4j.Logger;
@@ -11,8 +12,10 @@ import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,8 +27,6 @@ import java.util.*;
 public class MatchingServiceBiominiSDK implements MatchingService {
 
     final int MAX_TEMPLATE_SIZE = 384;
-    final int IMG_WIDTH = 300;
-    final int IMG_HEIGHT = 400;
     final int IMG_RESOLUTION = 500;
 
     private ImageSDK sdk;
@@ -36,6 +37,10 @@ public class MatchingServiceBiominiSDK implements MatchingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatchingServiceBiominiSDK.class);
 
+    private byte[][] templatesArray;
+    private int[] templatesSize;
+    private int[] employeeIdsArray;
+
     @Autowired
     public MatchingServiceBiominiSDK(EmployeeRepository repository) {
 
@@ -44,6 +49,8 @@ public class MatchingServiceBiominiSDK implements MatchingService {
 
         sdk.UFE_Create(hExtractorContainer);
         sdk.UFM_Create(hMatcher);
+
+        this.prepareTemplates();
 
     }
 
@@ -58,12 +65,6 @@ public class MatchingServiceBiominiSDK implements MatchingService {
 
         byte[] bTemplate = Base64.getDecoder().decode(template);
 
-        Map<String, Object> templatesData = getTemplates();
-
-        byte[][] templatesArray = (byte[][]) templatesData.get("TemplatesArray");
-        int[] templatesSize = (int[]) templatesData.get("TemplatesSize");
-        int[] employeeIdsArray = (int[]) templatesData.get("EmployeeIdsArray");
-
         int[] result = new int[1];
         int nRes = sdk.UFM_IdentifyMT(hMatcher[0], bTemplate, bTemplate.length, templatesArray, templatesSize, templatesArray.length, 60000, result);
 
@@ -74,7 +75,10 @@ public class MatchingServiceBiominiSDK implements MatchingService {
             if (result[0] != -1) {
                 int index = result[0];
                 employeeId = employeeIdsArray[index];
+                LOGGER.info(time+"- Identified "+employeeId);
             }else{
+                LOGGER.info(time+"- Not identified");
+                LOGGER.info(time+"- "+ template);
                 throw new Exception("Employee not found!");
             }
         }else {
@@ -86,46 +90,22 @@ public class MatchingServiceBiominiSDK implements MatchingService {
         return employeeId;
     }
 
-    public byte[] extractByteTemplate(byte[] image) {
-
-        byte[] pImage = loadImageFromBMPBuffer(image);
-        byte[] pTemplate = new byte[this.MAX_TEMPLATE_SIZE];
-        int[] pnTemplateSize = new int[1];
-        int[] pnEnrollQuality = new int[1];
-
-        int result = sdk.UFE_Extract(hExtractorContainer[0], pImage, this.IMG_WIDTH, this.IMG_HEIGHT, this.IMG_RESOLUTION, pTemplate, pnTemplateSize, pnEnrollQuality);
-
-        byte[] template = pImage = new byte[pnTemplateSize[0]];
-
-        if (result == sdk.UFE_OK) {
-            template = Arrays.copyOf(pTemplate, pnTemplateSize[0]);
-        }
-
-        return template;
-
-    }
-
+    @Override
     public String extractBase64Template(byte[] image) {
         byte[] template = extractByteTemplate(image);
         return Base64.getEncoder().encodeToString(template);
     }
 
-    public void setExtractedTemplates(Employee employee){
-        String extractedTemplate0 = extractBase64Template(employee.imgTemplate0());
-        String extractedTemplate1 = extractBase64Template(employee.imgTemplate1());
-        employee.setTemplate0(extractedTemplate0);
-        employee.setTemplate1(extractedTemplate1);
-    }
 
-    public Map<String, Object> getTemplates() {
+    public void prepareTemplates(){
 
         Iterable<Employee> employees = repository.findAll();
 
         int count = ((Collection<?>) employees).size() * 2;
 
-        byte[][] templatesArray = new byte[count][this.MAX_TEMPLATE_SIZE];
-        int[] templatesSize = new int[count];
-        int[] employeeIdsArray = new int[count];
+        this.templatesArray = new byte[count][this.MAX_TEMPLATE_SIZE];
+        this.templatesSize = new int[count];
+        this.employeeIdsArray = new int[count];
 
         int index = count - 1;
         for (Employee employee : employees) {
@@ -143,35 +123,42 @@ public class MatchingServiceBiominiSDK implements MatchingService {
             index--;
         }
 
-
-        Map templatesData = new HashMap();
-        templatesData.put("TemplatesArray", templatesArray);
-        templatesData.put("TemplatesSize", templatesSize);
-        templatesData.put("EmployeeIdsArray", employeeIdsArray);
-
-        return templatesData;
     }
 
-    public void extractTemplate(byte[] imageBuffer, int index, byte[][] outTemplate, int[] outSize) {
+    public byte[] extractByteTemplate(byte[] image) {
 
-        byte[] pImage = loadImageFromBMPBuffer(imageBuffer);
+        int IMG_WIDTH, IMG_HEIGHT;
 
+        try {
+            InputStream inp = new ByteArrayInputStream(image);
+            BufferedImage img = ImageIO.read(inp);
+            IMG_WIDTH = img.getWidth();
+            IMG_HEIGHT = img.getHeight();
+        } catch (IOException e) {
+            IMG_WIDTH = 300;
+            IMG_HEIGHT = 400;
+        }
+
+        byte[] pImage = loadImageFromBMPBuffer(image, IMG_WIDTH, IMG_HEIGHT);
         byte[] pTemplate = new byte[this.MAX_TEMPLATE_SIZE];
         int[] pnTemplateSize = new int[1];
         int[] pnEnrollQuality = new int[1];
 
-        int result = sdk.UFE_Extract(hExtractorContainer[0], pImage, this.IMG_WIDTH, this.IMG_HEIGHT, this.IMG_RESOLUTION, pTemplate, pnTemplateSize, pnEnrollQuality);
+        int result = sdk.UFE_Extract(hExtractorContainer[0], pImage, IMG_WIDTH, IMG_HEIGHT, this.IMG_RESOLUTION, pTemplate, pnTemplateSize, pnEnrollQuality);
+
+        byte[] template = pImage = new byte[pnTemplateSize[0]];
 
         if (result == sdk.UFE_OK) {
-            outTemplate[index] = pTemplate;
-            outSize[index] = pnTemplateSize[0];
+            template = Arrays.copyOf(pTemplate, pnTemplateSize[0]);
         }
+
+        return template;
 
     }
 
-    public byte[] loadImageFromBMPBuffer(byte[] imageBuffer) {
+    public byte[] loadImageFromBMPBuffer(byte[] imageBuffer, int IMG_WIDTH, int IMG_HEIGHT) {
 
-        byte[] pImage = new byte[this.IMG_WIDTH * this.IMG_HEIGHT];//null;
+        byte[] pImage = new byte[IMG_WIDTH * IMG_HEIGHT];
         int[] nWidth = new int[1];
         int[] nHeight = new int[1];
 

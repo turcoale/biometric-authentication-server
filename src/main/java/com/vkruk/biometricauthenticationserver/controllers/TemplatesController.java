@@ -1,8 +1,5 @@
 package com.vkruk.biometricauthenticationserver.controllers;
 
-import com.sun.xml.internal.org.jvnet.staxex.Base64Data;
-import com.vkruk.biometricauthenticationserver.models.Employee;
-import com.vkruk.biometricauthenticationserver.repository.EmployeeRepository;
 import com.vkruk.biometricauthenticationserver.services.MatchingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -10,8 +7,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,9 +17,7 @@ import java.util.Base64;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-/**
- * Created by Vova on 18.03.2018.
- */
+
 @Api(value="Templates", description="Operations for working with finger templates")
 @BasePathAwareController
 public class TemplatesController {

@@ -21,28 +21,26 @@ public class EventHandler {
 
     @HandleBeforeCreate
     public void newEmployeeBefore(Employee employee) {
-        int f=0;
-        //matchingService.setExtractedTemplates(employee);
+
     }
 
     @HandleAfterCreate
     public void newEmployeeAfter(Employee employee) {
-        int f=0;
+        matchingService.prepareTemplates();
     }
 
     @HandleBeforeSave
     public void updateEmployeBefore(Employee employee) {
-        int f=0;
-        //matchingService.setExtractedTemplates(employee);
+
     }
 
     @HandleAfterSave
     public void updateEmployeAfter(Employee employee) {
-        int f=0;
+        matchingService.prepareTemplates();
     }
 
     @HandleAfterDelete
     public void deleteEmployee(Employee employee) {
-        int f=0;
+        matchingService.prepareTemplates();
     }
 }

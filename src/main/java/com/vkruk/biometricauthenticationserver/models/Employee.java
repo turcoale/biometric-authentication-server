@@ -2,11 +2,14 @@ package com.vkruk.biometricauthenticationserver.models;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.Base64;
 
 @Data
@@ -15,13 +18,20 @@ public class Employee {
 
     @ApiModelProperty(notes = "The database generated ID")
     private @Id @GeneratedValue Long id;
+
     @ApiModelProperty(notes = "Employee ID")
-    private int employeeId;
+    private @Min(1) int employeeId;
+
     @ApiModelProperty(notes = "Finger number")
-    private byte finger;
+    @Min(1) @Max(10)
+    private  byte finger;
+
     @ApiModelProperty(notes = "First biometric template of finger")
+    @NotBlank
     private @Lob String template0;
+
     @ApiModelProperty(notes = "Second biometric template of finger")
+    @NotBlank
     private @Lob String template1;
 
     private Employee() {

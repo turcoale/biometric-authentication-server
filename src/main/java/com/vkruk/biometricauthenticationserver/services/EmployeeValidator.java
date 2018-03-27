@@ -3,18 +3,17 @@ package com.vkruk.biometricauthenticationserver.services;
 import com.vkruk.biometricauthenticationserver.models.Employee;
 //import org.springframework.lang.Nullable; @Nullable
 import com.vkruk.biometricauthenticationserver.models.Template;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-/**
- * Created by Vova on 20.03.2018.
- */
+@Component
 public class EmployeeValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> aClass) {
-        return  Employee.class.equals(aClass) || Template.class.equals(aClass);
+        return  Employee.class.equals(aClass);
     }
 
     @Override
