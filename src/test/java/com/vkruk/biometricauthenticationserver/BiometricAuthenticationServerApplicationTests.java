@@ -2,8 +2,9 @@ package com.vkruk.biometricauthenticationserver;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -22,17 +23,6 @@ public class BiometricAuthenticationServerApplicationTests {
 
 	@Test
 	public void contextLoads() {
-		/*CommandLineRunner runner = ctx.getBean(CommandLineRunner.class);
-		try {
-			runner.run ("--server.port=5050",
-                    "--db.username=root",
-                    "--db.password=!QAZ1qaz",
-                    "--db.port=3312",
-                    "--db.schema=templates",
-                    "--db.address=localhost");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
 	}
 
 }

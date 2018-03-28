@@ -1,10 +1,7 @@
 package com.vkruk.biometricauthenticationserver.controllers;
 
 import com.vkruk.biometricauthenticationserver.services.MatchingService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.http.HttpStatus;
@@ -54,5 +51,15 @@ public class TemplatesController {
     public @ResponseBody String getTemplateByBMP(@RequestBody final String imageBase64){
         byte[] image = Base64.getDecoder().decode(imageBase64);
         return matchingService.extractBase64Template(image);
+    }
+
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Templates are similar", response = Integer.class)
+            ,@ApiResponse(code = 400, message = "Templates are different", response = String.class)})
+    @RequestMapping(method = POST, value = "/compare2Templates")
+    public @ResponseBody ResponseEntity<Object> compareTemplates(@RequestBody @ApiParam(value = "Array of two templates.", required = true) final String[] templates){
+        if(templates.length!=2 || !matchingService.compareTemplates(templates[0],templates[1])){
+            return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<Object>(HttpStatus.OK);
     }
 }

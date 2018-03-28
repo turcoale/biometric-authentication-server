@@ -96,6 +96,18 @@ public class MatchingServiceBiominiSDK implements MatchingService {
         return Base64.getEncoder().encodeToString(template);
     }
 
+    @Override
+    public boolean compareTemplates(String template1,String template2){
+
+        byte[] bTemplate1 = Base64.getDecoder().decode(template1);
+        byte[] bTemplate2 = Base64.getDecoder().decode(template2);
+
+        int[] result = new int[1];
+        int nRes = sdk.UFM_Verify(hMatcher[0],bTemplate1,bTemplate1.length,bTemplate2,bTemplate2.length,result);
+
+        return  (nRes == 0 && result[0] == 1);
+
+    }
 
     public void prepareTemplates(){
 

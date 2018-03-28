@@ -10,4 +10,5 @@ public interface MatchingService {
     int identify(String template) throws Exception;
     String extractBase64Template(byte[] image);
     void prepareTemplates();
+    boolean compareTemplates(String template1, String template2);
 }

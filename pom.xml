@@ -65,10 +65,8 @@
 
 		<dependency>
 			<groupId>com.suprema</groupId>
-			<artifactId>ImageSDK</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/ImageSDK.jar</systemPath>
+			<artifactId>image-sdk</artifactId>
+			<version>3.7</version>
 		</dependency>
 
 		<dependency>
@@ -90,7 +88,17 @@
 	</dependencies>
 
 	<build>
+		<finalName>bio-srv</finalName>
 		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>com.vkruk.biometricauthenticationserver.BiometricAuthenticationServerApplication</mainClass>
+				</configuration>
+			</plugin>
+		</plugins>
+		<!--<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -106,7 +114,7 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>
+		</plugins>-->
 	</build>
 
 
