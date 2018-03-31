@@ -194,23 +194,15 @@ public class MatchingServiceBiominiSDK implements MatchingService {
     }
 
     public void createExtractor(){
-
         int resExtractor = sdk.UFE_Create(hExtractorContainer);
-
         String errMsg = getErrorMessage(resExtractor);
-
         LOGGER.info( errMsg.isEmpty() ? "Extractor created" : errMsg);
-
     }
 
     public void createMatcher() {
-
         int resMatcher = sdk.UFM_Create(hMatcher);
-
         String errMsg = getErrorMessage(resMatcher);
-
         LOGGER.info( errMsg.isEmpty() ? "Matcher created" : errMsg);
-
     }
 
     public String getErrorMessage(int result){
