@@ -20,6 +20,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static sun.security.krb5.KrbException.errorMessage;
+
 /**
  * Created by Vova on 10.03.2018.
  */
@@ -47,8 +49,8 @@ public class MatchingServiceBiominiSDK implements MatchingService {
         this.repository = repository;
         this.sdk = new ImageSDK();
 
-        sdk.UFE_Create(hExtractorContainer);
-        sdk.UFM_Create(hMatcher);
+        createExtractor();
+        createMatcher();
 
         this.prepareTemplates();
 
@@ -57,34 +59,31 @@ public class MatchingServiceBiominiSDK implements MatchingService {
     @Override
     public int identify(String template) throws Exception {
 
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
-        Date date = new Date();
-        String time = dateFormat.format(date);
-
-        LOGGER.info(time+"- Start...");
+        if(hMatcher[0] == 0){
+            String err = getErrorMessage(sdk.UFE_ERR_NO_LICENSE);
+            LOGGER.info("Identification -> "+err);
+            throw new Exception(err);
+        }
 
         byte[] bTemplate = Base64.getDecoder().decode(template);
 
         int[] result = new int[1];
         int nRes = sdk.UFM_IdentifyMT(hMatcher[0], bTemplate, bTemplate.length, templatesArray, templatesSize, templatesArray.length, 60000, result);
 
-        LOGGER.info(time+" - Stop...");
-
         int employeeId = 0;
-        if (nRes == 0) {
+        if (nRes == sdk.UFE_OK) {
             if (result[0] != -1) {
                 int index = result[0];
                 employeeId = employeeIdsArray[index];
-                LOGGER.info(time+"- Identified "+employeeId);
+                LOGGER.info("Identification -> Success "+employeeId);
             }else{
-                LOGGER.info(time+"- Not identified");
-                LOGGER.info(time+"- "+ template);
+                LOGGER.info("Identification -> Fail "+template);
                 throw new Exception("Employee not found!");
             }
         }else {
-            byte[] msg = new byte[30];
-            sdk.UFE_GetErrorString(nRes,msg);
-            throw new Exception(new String(msg));
+            String err = getErrorMessage(nRes);
+            LOGGER.info("Identification -> "+err);
+            throw new Exception(err);
         }
 
         return employeeId;
@@ -97,13 +96,22 @@ public class MatchingServiceBiominiSDK implements MatchingService {
     }
 
     @Override
-    public boolean compareTemplates(String template1,String template2){
+    public boolean compareTemplates(String template1,String template2) {
+
+        if(hMatcher[0] == 0){
+            LOGGER.info("Comparison -> "+getErrorMessage(sdk.UFE_ERR_NO_LICENSE));
+            return false;
+        }
 
         byte[] bTemplate1 = Base64.getDecoder().decode(template1);
         byte[] bTemplate2 = Base64.getDecoder().decode(template2);
 
         int[] result = new int[1];
         int nRes = sdk.UFM_Verify(hMatcher[0],bTemplate1,bTemplate1.length,bTemplate2,bTemplate2.length,result);
+
+        if(nRes != sdk.UFE_OK){
+            LOGGER.info("Comparison -> "+getErrorMessage(nRes));
+        }
 
         return  (nRes == 0 && result[0] == 1);
 
@@ -162,6 +170,8 @@ public class MatchingServiceBiominiSDK implements MatchingService {
 
         if (result == sdk.UFE_OK) {
             template = Arrays.copyOf(pTemplate, pnTemplateSize[0]);
+        }else{
+            LOGGER.info("Extracting -> "+getErrorMessage(result));
         }
 
         return template;
@@ -176,6 +186,42 @@ public class MatchingServiceBiominiSDK implements MatchingService {
 
         int result = sdk.UFE_LoadImageFromBMPBuffer(imageBuffer, imageBuffer.length, pImage, nWidth, nHeight);
 
+        if(result != sdk.UFE_OK){
+            LOGGER.info("Loading from BMP -> "+getErrorMessage(result));
+        }
+
         return pImage;
     }
+
+    public void createExtractor(){
+
+        int resExtractor = sdk.UFE_Create(hExtractorContainer);
+
+        String errMsg = getErrorMessage(resExtractor);
+
+        LOGGER.info( errMsg.isEmpty() ? "Extractor created" : errMsg);
+
+    }
+
+    public void createMatcher() {
+
+        int resMatcher = sdk.UFM_Create(hMatcher);
+
+        String errMsg = getErrorMessage(resMatcher);
+
+        LOGGER.info( errMsg.isEmpty() ? "Matcher created" : errMsg);
+
+    }
+
+    public String getErrorMessage(int result){
+        String errMsg = "";
+        if(result != sdk.UFE_OK){
+            byte[] msg = new byte[150];
+            sdk.UFE_GetErrorString(result, msg);
+            errMsg = new String(msg);
+            LOGGER.info(errMsg);
+        }
+        return errMsg.trim();
+    }
+
 }
