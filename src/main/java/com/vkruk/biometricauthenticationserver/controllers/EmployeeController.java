@@ -35,8 +35,7 @@ public class EmployeeController implements ApplicationEventPublisherAware {
     @RequestMapping(method = RequestMethod.POST, value = "/{id}/templates")
     public @ResponseBody List<Employee> addUpdate( @ApiParam(value = "${employee-controller.addUpdate.id}", required = true)
                                                       @PathVariable("id") final int id,
-                                                      @RequestBody final List<Template> templates,
-                                                        Errors errors) {
+                                                      @RequestBody final List<Template> templates) {
 
         repository.deleteAllByEmployeeId(id);
 

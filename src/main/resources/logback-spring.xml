@@ -1,10 +1,8 @@
 <configuration>
 
-    <property name="logPattern"
-              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-4relative [%thread] %-5level %logger{35} - %msg%n"/>
+    <property name="logPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS}%thread%level%logger%line%msg"/>
     <property name="logEncoding" value="UTF-8"/>
-    <property name="logDirectory"
-              value="${user.home}/bio_srv_logs"/>               <!--"${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}bio_srv_logs}"/>-->
+    <property name="logDirectory" value="logs"/>
     <property name="file_base_name" value="app"/>
     <property name="archive" value="archive"/>
     <timestamp key="current_date" datePattern="yyyy-MM-dd"/>
@@ -12,7 +10,7 @@
 
     <appender name="fileAppenderERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
 
-        <file>${logDirectory}/errors.log</file>
+        <file>${logDirectory}/errors.html</file>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>ERROR</level>
             <onMatch>ACCEPT</onMatch>
@@ -21,37 +19,41 @@
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>
-                ${logDirectory}/${archive}/errors_%d{yyyy-MM-dd}.%i.log
+                ${logDirectory}/${archive}/errors_%d{yyyy-MM-dd}.%i.html
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>20MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
-        <encoder>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
             <charset>${logEncoding}</charset>
-            <pattern>${logPattern}</pattern>
+            <layout class="ch.qos.logback.classic.html.HTMLLayout">
+                <pattern>${logPattern}</pattern>
+            </layout>
         </encoder>
         <Append>true</Append>
     </appender>
 
     <appender name="fileAppenderInfo" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logDirectory}/info.log</file>
+        <file>${logDirectory}/info.html</file>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>
             <onMatch>ACCEPT</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
-        <rlingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>
-                ${logDirectory}/${archive}/info_%d{yyyy-MM-dd}.%i.log
+                ${logDirectory}/${archive}/info_%d{yyyy-MM-dd}.%i.html
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>20MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
-        </rlingPolicy>
-        <encoder>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
             <charset>${logEncoding}</charset>
-            <pattern>${logPattern}</pattern>
+            <layout class="ch.qos.logback.classic.html.HTMLLayout">
+                <pattern>${logPattern}</pattern>
+            </layout>
         </encoder>
         <Append>true</Append>
     </appender>

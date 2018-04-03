@@ -20,4 +20,6 @@ public interface EmployeeRepository extends CrudRepository<Employee, Long>{
     @Transactional
     long deleteAllByEmployeeId(@Param("id") int id);
 
+    List<Employee> findByEmployeeIdAndFinger(int id, byte finger);
+
 }

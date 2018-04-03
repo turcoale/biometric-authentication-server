@@ -1,4 +1,4 @@
-package com.vkruk.biometricauthenticationserver;
+package com.vkruk.biometricauthenticationserver.configurations;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +31,7 @@ public class SwaggerConfig {
         return new ApiInfo(
                 "Biometric authentication server",
                 "Identificates employees by finger templates",
-                "0.8",
+                "1.0",
                 "",
                 new Contact("Volodymyr Kruk", "", "krukvova@gmail.com"),
                 "Apache License Version 2.0", "https://www.apache.org/licenses/LICENSE-2.0", Collections.emptyList()

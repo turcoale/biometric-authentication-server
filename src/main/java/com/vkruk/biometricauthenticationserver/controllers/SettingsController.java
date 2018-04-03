@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class SettingsController {
     @RequestMapping(value = "/")
-    String settings(){
+    public String settings(){
         return "index";
     }
 }

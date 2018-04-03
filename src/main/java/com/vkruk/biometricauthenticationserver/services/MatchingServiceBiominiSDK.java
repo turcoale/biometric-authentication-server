@@ -143,6 +143,8 @@ public class MatchingServiceBiominiSDK implements MatchingService {
             index--;
         }
 
+        LOGGER.info("Prepared "+templatesArray.length + " templates");
+
     }
 
     public byte[] extractByteTemplate(byte[] image) {
@@ -210,10 +212,10 @@ public class MatchingServiceBiominiSDK implements MatchingService {
         if(result != sdk.UFE_OK){
             byte[] msg = new byte[150];
             sdk.UFE_GetErrorString(result, msg);
-            errMsg = new String(msg);
+            errMsg = new String(msg).replace("\u0000","");
             LOGGER.info(errMsg);
         }
-        return errMsg.trim();
+        return errMsg;
     }
 
 }
