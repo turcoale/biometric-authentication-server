@@ -30,8 +30,8 @@ public class EventHandler {
 
     @HandleAfterCreate
     public void newEmployeeAfter(Employee employee) {
-        matchingService.prepareTemplates();
         logEvent("Created", employee);
+        matchingService.prepareTemplates();
     }
 
     @HandleBeforeSave
@@ -41,14 +41,14 @@ public class EventHandler {
 
     @HandleAfterSave
     public void updateEmployeAfter(Employee employee) {
-        matchingService.prepareTemplates();
         logEvent("Updated", employee);
+        matchingService.prepareTemplates();
     }
 
     @HandleAfterDelete
     public void deleteEmployee(Employee employee) {
-        matchingService.prepareTemplates();
         logEvent("Deleted", employee);
+        matchingService.prepareTemplates();
     }
 
     public void logEvent(String event, Employee employee){

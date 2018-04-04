@@ -14,9 +14,21 @@ public class ServerConfiguration extends WebMvcConfigurerAdapter {
 
         @Override
         public void addResourceHandlers(ResourceHandlerRegistry registry) {
-            registry.addResourceHandler("/logs/**").addResourceLocations("file:logs/info.html",
-                                                                                        "file:logs/errors.html");
+
+            registry
+                    .addResourceHandler("/logs/**")
+                    .addResourceLocations("file:logs/info.html", "file:logs/errors.html");
+
+            registry
+                    .addResourceHandler("swagger-ui.html")
+                    .addResourceLocations("classpath:/META-INF/resources/");
+
+            registry
+                    .addResourceHandler("/webjars/**")
+                    .addResourceLocations("classpath:/META-INF/resources/webjars/");
+
             super.addResourceHandlers(registry);
+
         }
 
     }

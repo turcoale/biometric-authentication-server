@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.rest.core.event.AfterCreateEvent;
+import org.springframework.data.rest.core.event.AfterDeleteEvent;
 import org.springframework.data.rest.core.event.BeforeCreateEvent;
+import org.springframework.data.rest.core.event.BeforeDeleteEvent;
 import org.springframework.data.rest.webmvc.BasePathAwareController;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +40,7 @@ public class EmployeeController implements ApplicationEventPublisherAware {
                                                       @RequestBody final List<Template> templates) {
 
         repository.deleteAllByEmployeeId(id);
+        applicationEventPublisher.publishEvent(new AfterDeleteEvent(new Employee(id,(byte)0,"","")));
 
         templates.forEach(template -> {
             Employee employee = new Employee(id,template.getFinger(),template.getTemplate0(),template.getTemplate1());
