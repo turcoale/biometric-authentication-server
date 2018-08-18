@@ -20,7 +20,7 @@ public class Employee {
     private @Id @GeneratedValue Long id;
 
     @ApiModelProperty(notes = "Employee ID")
-    private @Min(1) int employeeId;
+    private @NotBlank String employeeId;
 
     @ApiModelProperty(notes = "Finger number")
     @Min(1) @Max(10)
@@ -37,7 +37,7 @@ public class Employee {
     private Employee() {
     }
 
-    public Employee(Long id, int employeeId, byte finger, String template0, String template1) {
+    public Employee(Long id, String employeeId, byte finger, String template0, String template1) {
         this.id = id;
         this.employeeId = employeeId;
         this.finger = finger;
@@ -45,8 +45,7 @@ public class Employee {
         this.template1 = template1;
     }
 
-    public Employee(int employeeId, byte finger, String template0, String template1) {
-        this.id = id;
+    public Employee(String employeeId, byte finger, String template0, String template1) {
         this.employeeId = employeeId;
         this.finger = finger;
         this.template0 = template0;
@@ -61,11 +60,11 @@ public class Employee {
         this.id = id;
     }
 
-    public int getEmployeeId() {
+    public String getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(int employeeId) {
+    public void setEmployeeId(String employeeId) {
         this.employeeId = employeeId;
     }
 

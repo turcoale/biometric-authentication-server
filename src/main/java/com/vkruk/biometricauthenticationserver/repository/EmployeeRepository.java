@@ -15,10 +15,10 @@ import java.util.List;
 @Repository
 public interface EmployeeRepository extends CrudRepository<Employee, Long>{
 
-    List<Employee> findByEmployeeId(@Param("id") int id);
+    List<Employee> findByEmployeeId(@Param("employeeId") String employeeId);
 
     @Transactional
-    long deleteAllByEmployeeId(@Param("id") int id);
+    long deleteAllByEmployeeId(@Param("employeeId") String employeeId);
 
     List<Employee> findByEmployeeIdAndFinger(int id, byte finger);
 

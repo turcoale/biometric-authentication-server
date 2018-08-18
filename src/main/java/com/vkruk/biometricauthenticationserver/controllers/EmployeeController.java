@@ -36,11 +36,12 @@ public class EmployeeController implements ApplicationEventPublisherAware {
     @ApiOperation(value = "${employee-controller.addUpdate}")
     @RequestMapping(method = RequestMethod.POST, value = "/{id}/templates")
     public @ResponseBody List<Employee> addUpdate( @ApiParam(value = "${employee-controller.addUpdate.id}", required = true)
-                                                      @PathVariable("id") final int id,
+                                                      @PathVariable("id") final String id,
                                                       @RequestBody final List<Template> templates) {
 
-        repository.deleteAllByEmployeeId(id);
-        applicationEventPublisher.publishEvent(new AfterDeleteEvent(new Employee(id,(byte)0,"","")));
+        if(repository.deleteAllByEmployeeId(id) != 0){
+            applicationEventPublisher.publishEvent(new AfterDeleteEvent(new Employee(id,(byte)0,"","")));
+        }
 
         templates.forEach(template -> {
             Employee employee = new Employee(id,template.getFinger(),template.getTemplate0(),template.getTemplate1());

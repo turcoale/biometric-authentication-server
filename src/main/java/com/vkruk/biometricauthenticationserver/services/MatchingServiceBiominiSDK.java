@@ -41,7 +41,7 @@ public class MatchingServiceBiominiSDK implements MatchingService {
 
     private byte[][] templatesArray;
     private int[] templatesSize;
-    private int[] employeeIdsArray;
+    private String[] employeeIdsArray;
 
     @Autowired
     public MatchingServiceBiominiSDK(EmployeeRepository repository) {
@@ -57,12 +57,16 @@ public class MatchingServiceBiominiSDK implements MatchingService {
     }
 
     @Override
-    public int identify(String template) throws Exception {
+    public String identify(String template) throws Exception {
 
-        if(hMatcher[0] == 0){
+        if(hMatcher[0] == 0 && !createMatcher()){
             String err = getErrorMessage(sdk.UFE_ERR_NO_LICENSE);
             LOGGER.info("Identification -> "+err);
             throw new Exception(err);
+        }
+
+        if(template.isEmpty()){
+            throw new Exception("Template can't be empty!");
         }
 
         byte[] bTemplate = Base64.getDecoder().decode(template);
@@ -70,27 +74,28 @@ public class MatchingServiceBiominiSDK implements MatchingService {
         int[] result = new int[1];
         int nRes = sdk.UFM_IdentifyMT(hMatcher[0], bTemplate, bTemplate.length, templatesArray, templatesSize, templatesArray.length, 60000, result);
 
-        int employeeId = 0;
-        if (nRes == sdk.UFE_OK) {
-            if (result[0] != -1) {
-                int index = result[0];
-                employeeId = employeeIdsArray[index];
-                LOGGER.info("Identification -> Success "+employeeId);
-            }else{
-                LOGGER.info("Identification -> Fail "+template);
-                throw new Exception("Employee not found!");
-            }
-        }else {
+        String employeeId;
+
+        if (nRes != sdk.UFE_OK){
             String err = getErrorMessage(nRes);
-            LOGGER.info("Identification -> "+err);
+            LOGGER.info("Identification -> "+err+" -> "+template);
             throw new Exception(err);
         }
+
+        if (result[0] == -1) {
+            LOGGER.info("Identification -> Fail "+template);
+            throw new Exception("Employee not found!");
+        }
+
+        int index = result[0];
+        employeeId = employeeIdsArray[index];
+        LOGGER.info("Identification -> Success "+employeeId);
 
         return employeeId;
     }
 
     @Override
-    public String extractBase64Template(byte[] image) {
+    public String extractBase64Template(byte[] image) throws Exception {
         byte[] template = extractByteTemplate(image);
         return Base64.getEncoder().encodeToString(template);
     }
@@ -98,8 +103,7 @@ public class MatchingServiceBiominiSDK implements MatchingService {
     @Override
     public boolean compareTemplates(String template1,String template2) {
 
-        if(hMatcher[0] == 0){
-            LOGGER.info("Comparison -> "+getErrorMessage(sdk.UFE_ERR_NO_LICENSE));
+        if(hMatcher[0] == 0 && !createMatcher()){
             return false;
         }
 
@@ -125,7 +129,7 @@ public class MatchingServiceBiominiSDK implements MatchingService {
 
         this.templatesArray = new byte[count][this.MAX_TEMPLATE_SIZE];
         this.templatesSize = new int[count];
-        this.employeeIdsArray = new int[count];
+        this.employeeIdsArray = new String[count];
 
         int index = count - 1;
         for (Employee employee : employees) {
@@ -147,7 +151,13 @@ public class MatchingServiceBiominiSDK implements MatchingService {
 
     }
 
-    public byte[] extractByteTemplate(byte[] image) {
+    public byte[] extractByteTemplate(byte[] image) throws Exception {
+
+        if(hExtractorContainer[0] == 0 && !createExtractor()){
+            String err = getErrorMessage(sdk.UFE_ERR_NO_LICENSE);
+            LOGGER.info("Extracting -> "+err);
+            throw new Exception(err);
+        }
 
         int IMG_WIDTH, IMG_HEIGHT;
 
@@ -170,11 +180,13 @@ public class MatchingServiceBiominiSDK implements MatchingService {
 
         byte[] template = pImage = new byte[pnTemplateSize[0]];
 
-        if (result == sdk.UFE_OK) {
-            template = Arrays.copyOf(pTemplate, pnTemplateSize[0]);
-        }else{
-            LOGGER.info("Extracting -> "+getErrorMessage(result));
+        if(result != sdk.UFE_OK){
+            String err_msg = getErrorMessage(result);
+            LOGGER.info("Extracting -> "+err_msg+" length:"+image.length+" width:"+IMG_WIDTH+" height:"+IMG_HEIGHT);
+            throw new Exception(err_msg);
         }
+
+        template = Arrays.copyOf(pTemplate, pnTemplateSize[0]);
 
         return template;
 
@@ -195,16 +207,27 @@ public class MatchingServiceBiominiSDK implements MatchingService {
         return pImage;
     }
 
-    public void createExtractor(){
+    public boolean createExtractor(){
+
         int resExtractor = sdk.UFE_Create(hExtractorContainer);
+        boolean success = resExtractor == sdk.UFE_OK;
+
         String errMsg = getErrorMessage(resExtractor);
-        LOGGER.info( errMsg.isEmpty() ? "Extractor created" : errMsg);
+        LOGGER.info( success ? "Extractor created" : errMsg);
+
+        return success;
+
     }
 
-    public void createMatcher() {
+    public boolean createMatcher() {
+
         int resMatcher = sdk.UFM_Create(hMatcher);
+        boolean success = resMatcher == sdk.UFE_OK;
+
         String errMsg = getErrorMessage(resMatcher);
         LOGGER.info( errMsg.isEmpty() ? "Matcher created" : errMsg);
+
+        return success;
     }
 
     public String getErrorMessage(int result){
@@ -213,7 +236,7 @@ public class MatchingServiceBiominiSDK implements MatchingService {
             byte[] msg = new byte[150];
             sdk.UFE_GetErrorString(result, msg);
             errMsg = new String(msg).replace("\u0000","");
-            LOGGER.info(errMsg);
+            //LOGGER.info(errMsg);
         }
         return errMsg;
     }

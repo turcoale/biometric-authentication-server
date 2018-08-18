@@ -35,7 +35,7 @@ public class TemplatesController {
         ResponseEntity<Object> response;
 
         try {
-            int result = matchingService.identify(template);
+            String result = matchingService.identify(template);
             response = new ResponseEntity<Object>(result, HttpStatus.OK);
         } catch (Exception e) {
             response = new ResponseEntity<Object>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -48,7 +48,7 @@ public class TemplatesController {
     @ApiOperation(value = "${templates-controller.getTemplates}", response = String.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successfully extracted template", response = String.class, reference = "Base64String")})
     @RequestMapping(method = POST, value = "/getTemplateByBMP")
-    public @ResponseBody String getTemplateByBMP(@RequestBody final String imageBase64){
+    public @ResponseBody String getTemplateByBMP(@RequestBody final String imageBase64) throws Exception {
         byte[] image = Base64.getDecoder().decode(imageBase64);
         return matchingService.extractBase64Template(image);
     }

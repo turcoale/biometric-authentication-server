@@ -5,7 +5,7 @@
 
 	<groupId>com.vkruk.BiometricAuthenticationServer</groupId>
 	<artifactId>biometric-authentication-server</artifactId>
-	<version>1.0.1-RELEASE</version>
+	<version>1.0.2-RELEASE</version>
 	<packaging>jar</packaging>
 
 	<name>biometric-authentication-server</name>
