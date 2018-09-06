@@ -159,6 +159,10 @@ public class MatchingServiceBiominiSDK implements MatchingService {
             throw new Exception(err);
         }
 
+        if(image.length == 0){
+            throw new Exception("Image cant't be empty!");
+        }
+
         int IMG_WIDTH, IMG_HEIGHT;
 
         try {

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.xml.ws.Response;
 import java.util.Base64;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -46,11 +47,23 @@ public class TemplatesController {
     }
 
     @ApiOperation(value = "${templates-controller.getTemplates}", response = String.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successfully extracted template", response = String.class, reference = "Base64String")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successfully extracted template", response = String.class, reference = "Base64String"),
+                                @ApiResponse(code = 400, message = "Extracting failed. Returns error message.", response = String.class)})
     @RequestMapping(method = POST, value = "/getTemplateByBMP")
-    public @ResponseBody String getTemplateByBMP(@RequestBody final String imageBase64) throws Exception {
-        byte[] image = Base64.getDecoder().decode(imageBase64);
-        return matchingService.extractBase64Template(image);
+    public @ResponseBody ResponseEntity<Object> getTemplateByBMP(@RequestBody final String imageBase64){
+
+        ResponseEntity<Object> response;
+
+        try {
+            byte[] image = Base64.getDecoder().decode(imageBase64);
+            String template = matchingService.extractBase64Template(image);
+            response = new ResponseEntity<Object>(template, HttpStatus.OK);
+        } catch (Exception e) {
+            response = new ResponseEntity<Object>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+        return response;
+
     }
 
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Templates are similar", response = Integer.class)
